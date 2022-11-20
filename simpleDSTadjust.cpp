@@ -9,6 +9,9 @@
 
 
 #include "simpleDSTadjust.h"
+#include <esp_log.h>
+
+static const char* TAG = "simpleDSTadjust";
 
 // Constructor
 simpleDSTadjust::simpleDSTadjust(struct dstRule startRule, struct dstRule endRule ) {
@@ -31,16 +34,14 @@ time_t simpleDSTadjust::time(char **abbrev)
     dstStart = calcTime(&dstStartRule);
     dstEnd = calcTime(&dstEndRule);
 
-    Serial.println("\nDST Rules Updated:");
-    Serial.print("DST Start: ");
-    Serial.print(ctime(&dstStart));
-    Serial.print("DST End:   ");
-    Serial.println(ctime(&dstEnd));
+    ESP_LOGI(TAG, "DST Rules Updated:");
+    ESP_LOGI(TAG, "DST Start: %s", ctime(&dstStart));
+    ESP_LOGI(TAG, "DST End:   %s", ctime(&dstEnd));
    }
 
  bool northTZ = (dstEnd>dstStart)?1:0; // Northern or Southern hemisphere TZ?
 
-  if(( northTZ && (now >= dstStart && now < dstEnd) ) || ( !northTZ && (now < dstEnd ) ) || now >= dstStart)
+  if(( northTZ && (now >= dstStart && now < dstEnd) ) || ( !northTZ && (now < dstEnd ) ))
    {
     now += dstStartRule.offset;
 	if(abbrev!=NULL)
